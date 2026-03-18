@@ -1,7 +1,7 @@
-import {User} from "../../users/entities/user.entity";
+import { User } from '../../users/entities/user.entity';
 
 export class CreateBoardDto {
-    title: string;
-    description: string;
-    owner: User;
+  title: string;
+  description: string;
+  owner: User;
 }

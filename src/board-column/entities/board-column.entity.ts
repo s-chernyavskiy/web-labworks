@@ -1,14 +1,14 @@
-import {Column, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn} from "typeorm";
-import {Board} from "../../board/entities/board.entity";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Board } from '../../board/entities/board.entity';
 
 @Entity()
 export class BoardColumn {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    title: string;
+  @Column()
+  title: string;
 
-    @ManyToOne(() => Board, (board) => board.id)
-    board: Board;
+  @ManyToOne(() => Board, (board) => board.id)
+  board: Board;
 }

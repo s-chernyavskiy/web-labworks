@@ -1,6 +1,6 @@
-import {Board} from "../../board/entities/board.entity";
+import { Board } from '../../board/entities/board.entity';
 
 export class CreateBoardColumnDto {
-    title: string;
-    board: Board;
+  title: string;
+  board: Board;
 }

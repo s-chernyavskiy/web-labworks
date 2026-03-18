@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { BoardColumnService } from './board-column.service';
 import { CreateBoardColumnDto } from './dto/create-board-column.dto';
 import { UpdateBoardColumnDto } from './dto/update-board-column.dto';
@@ -23,7 +31,10 @@ export class BoardColumnController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBoardColumnDto: UpdateBoardColumnDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateBoardColumnDto: UpdateBoardColumnDto,
+  ) {
     return this.boardColumnService.update(+id, updateBoardColumnDto);
   }
 

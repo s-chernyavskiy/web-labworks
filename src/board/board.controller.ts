@@ -6,18 +6,23 @@ import {
   Patch,
   Param,
   Delete,
+  Headers,
 } from '@nestjs/common';
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
+import { requireActorUserId } from '../common/actor';
 
 @Controller('board')
 export class BoardController {
   constructor(private readonly boardService: BoardService) {}
 
   @Post()
-  create(@Body() createBoardDto: CreateBoardDto) {
-    return this.boardService.create(createBoardDto);
+  create(
+    @Headers('x-user-id') actor: string,
+    @Body() createBoardDto: CreateBoardDto,
+  ) {
+    return this.boardService.create(requireActorUserId(actor), createBoardDto);
   }
 
   @Get()
@@ -30,13 +35,31 @@ export class BoardController {
     return this.boardService.findOne(+id);
   }
 
+  @Get(':id/columns')
+  findColumns(@Param('id') id: string) {
+    return this.boardService.findColumns(+id);
+  }
+
+  @Get(':id/tasks')
+  findTasks(@Param('id') id: string) {
+    return this.boardService.findTasks(+id);
+  }
+
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBoardDto: UpdateBoardDto) {
-    return this.boardService.update(+id, updateBoardDto);
+  update(
+    @Headers('x-user-id') actor: string,
+    @Param('id') id: string,
+    @Body() updateBoardDto: UpdateBoardDto,
+  ) {
+    return this.boardService.update(
+      requireActorUserId(actor),
+      +id,
+      updateBoardDto,
+    );
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.boardService.remove(+id);
+  remove(@Headers('x-user-id') actor: string, @Param('id') id: string) {
+    return this.boardService.remove(requireActorUserId(actor), +id);
   }
 }

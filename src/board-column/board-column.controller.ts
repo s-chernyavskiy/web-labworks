@@ -6,18 +6,26 @@ import {
   Patch,
   Param,
   Delete,
+  Headers,
 } from '@nestjs/common';
 import { BoardColumnService } from './board-column.service';
 import { CreateBoardColumnDto } from './dto/create-board-column.dto';
 import { UpdateBoardColumnDto } from './dto/update-board-column.dto';
+import { requireActorUserId } from '../common/actor';
 
 @Controller('board-column')
 export class BoardColumnController {
   constructor(private readonly boardColumnService: BoardColumnService) {}
 
   @Post()
-  create(@Body() createBoardColumnDto: CreateBoardColumnDto) {
-    return this.boardColumnService.create(createBoardColumnDto);
+  create(
+    @Headers('x-user-id') actor: string,
+    @Body() createBoardColumnDto: CreateBoardColumnDto,
+  ) {
+    return this.boardColumnService.create(
+      requireActorUserId(actor),
+      createBoardColumnDto,
+    );
   }
 
   @Get()
@@ -32,14 +40,19 @@ export class BoardColumnController {
 
   @Patch(':id')
   update(
+    @Headers('x-user-id') actor: string,
     @Param('id') id: string,
     @Body() updateBoardColumnDto: UpdateBoardColumnDto,
   ) {
-    return this.boardColumnService.update(+id, updateBoardColumnDto);
+    return this.boardColumnService.update(
+      requireActorUserId(actor),
+      +id,
+      updateBoardColumnDto,
+    );
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.boardColumnService.remove(+id);
+  remove(@Headers('x-user-id') actor: string, @Param('id') id: string) {
+    return this.boardColumnService.remove(requireActorUserId(actor), +id);
   }
 }

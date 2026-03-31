@@ -8,7 +8,12 @@ describe('BoardColumnController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [BoardColumnController],
-      providers: [BoardColumnService],
+      providers: [
+        {
+          provide: BoardColumnService,
+          useValue: {},
+        },
+      ],
     }).compile();
 
     controller = module.get<BoardColumnController>(BoardColumnController);

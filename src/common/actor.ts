@@ -7,7 +7,7 @@ export function requireActorUserId(raw: string | string[] | undefined): number {
   const parsed = typeof value === 'string' ? Number.parseInt(value, 10) : NaN;
 
   if (!Number.isFinite(parsed) || parsed <= 0) {
-    throw new BadRequestException('Missing x-user-id header');
+    throw new BadRequestException('Missing user-id header');
   }
 
   return parsed;

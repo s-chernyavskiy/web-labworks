@@ -19,7 +19,7 @@ export class BoardController {
 
   @Post()
   create(
-    @Headers('x-user-id') actor: string,
+    @Headers('user-id') actor: string,
     @Body() createBoardDto: CreateBoardDto,
   ) {
     return this.boardService.create(requireActorUserId(actor), createBoardDto);
@@ -47,7 +47,7 @@ export class BoardController {
 
   @Patch(':id')
   update(
-    @Headers('x-user-id') actor: string,
+    @Headers('user-id') actor: string,
     @Param('id') id: string,
     @Body() updateBoardDto: UpdateBoardDto,
   ) {
@@ -59,7 +59,7 @@ export class BoardController {
   }
 
   @Delete(':id')
-  remove(@Headers('x-user-id') actor: string, @Param('id') id: string) {
+  remove(@Headers('user-id') actor: string, @Param('id') id: string) {
     return this.boardService.remove(requireActorUserId(actor), +id);
   }
 }

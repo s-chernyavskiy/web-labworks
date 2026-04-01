@@ -19,7 +19,7 @@ export class TaskController {
 
   @Post()
   create(
-    @Headers('x-user-id') actor: string,
+    @Headers('user-id') actor: string,
     @Body() createTaskDto: CreateTaskDto,
   ) {
     return this.taskService.create(requireActorUserId(actor), createTaskDto);
@@ -37,7 +37,7 @@ export class TaskController {
 
   @Patch(':id')
   update(
-    @Headers('x-user-id') actor: string,
+    @Headers('user-id') actor: string,
     @Param('id') id: string,
     @Body() updateTaskDto: UpdateTaskDto,
   ) {
@@ -49,7 +49,7 @@ export class TaskController {
   }
 
   @Delete(':id')
-  remove(@Headers('x-user-id') actor: string, @Param('id') id: string) {
+  remove(@Headers('user-id') actor: string, @Param('id') id: string) {
     return this.taskService.remove(requireActorUserId(actor), +id);
   }
 }

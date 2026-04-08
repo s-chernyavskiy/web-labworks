@@ -6,10 +6,11 @@ import { Board } from './entities/board.entity';
 import { User } from '../users/entities/user.entity';
 import { BoardColumn } from '../board-column/entities/board-column.entity';
 import { Task } from '../task/entities/task.entity';
+import { BoardResolver } from './board.resolver';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Board, User, BoardColumn, Task])],
   controllers: [BoardController],
-  providers: [BoardService],
+  providers: [BoardService, BoardResolver],
 })
 export class BoardModule {}

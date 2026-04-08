@@ -1,4 +1,13 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateBoardDto } from './create-board.dto';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Field, InputType } from '@nestjs/graphql';
 
-export class UpdateBoardDto extends PartialType(CreateBoardDto) {}
+@InputType()
+export class UpdateBoardDto {
+  @ApiPropertyOptional({ example: 'Board' })
+  @Field({ nullable: true })
+  title?: string;
+
+  @ApiPropertyOptional({ example: 'Board description' })
+  @Field({ nullable: true })
+  description?: string;
+}

@@ -7,3 +7,20 @@
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
+    networks:
+      - chernyavskiy_network
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - database
+    env_file:
+      - ".env"
+    networks:
+      - chernyavskiy_network
+
+networks:
+  chernyavskiy_network:
+    driver: bridge

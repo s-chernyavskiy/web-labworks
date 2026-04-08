@@ -4,10 +4,11 @@ import { BoardColumnController } from './board-column.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BoardColumn } from './entities/board-column.entity';
 import { Board } from '../board/entities/board.entity';
+import { BoardColumnResolver } from './board-column.resolver';
 
 @Module({
   imports: [TypeOrmModule.forFeature([BoardColumn, Board])],
   controllers: [BoardColumnController],
-  providers: [BoardColumnService],
+  providers: [BoardColumnService, BoardColumnResolver],
 })
 export class BoardColumnModule {}

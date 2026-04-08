@@ -3,6 +3,8 @@ import { BoardColumn } from './entities/board-column.entity';
 import { BoardColumnService } from './board-column.service';
 import { CreateBoardColumnDto } from './dto/create-board-column.dto';
 import { UpdateBoardColumnDto } from './dto/update-board-column.dto';
+import { CurrentUser } from '../auth/current-user.decorator';
+import type { AuthUser } from '../auth/auth-user.type';
 
 @Resolver(() => BoardColumn)
 export class BoardColumnResolver {
@@ -10,18 +12,18 @@ export class BoardColumnResolver {
 
   @Mutation(() => BoardColumn)
   async addBoardColumn(
-    @Args('actorUserId') actorUserId: number,
+    @CurrentUser() actor: AuthUser,
     @Args('createBoardColumn') dto: CreateBoardColumnDto,
   ): Promise<BoardColumn> {
-    return await this.boardColumnService.create(actorUserId, dto);
+    return await this.boardColumnService.create(actor, dto);
   }
 
   @Mutation(() => BoardColumn)
   async updateBoardColumn(
     @Args({ name: 'id', type: () => ID }) id: number,
-    @Args('actorUserId') actorUserId: number,
+    @CurrentUser() actor: AuthUser,
     @Args('updateBoardColumn') dto: UpdateBoardColumnDto,
   ): Promise<BoardColumn> {
-    return await this.boardColumnService.update(actorUserId, id, dto);
+    return await this.boardColumnService.update(actor, id, dto);
   }
 }

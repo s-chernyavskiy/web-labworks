@@ -6,23 +6,20 @@ import {
   Patch,
   Param,
   Delete,
-  Headers,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { requireActorUserId } from '../common/actor';
+import { CurrentUser } from '../auth/current-user.decorator';
+import type { AuthUser } from '../auth/auth-user.type';
 
 @Controller('task')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Post()
-  create(
-    @Headers('user-id') actor: string,
-    @Body() createTaskDto: CreateTaskDto,
-  ) {
-    return this.taskService.create(requireActorUserId(actor), createTaskDto);
+  create(@CurrentUser() actor: AuthUser, @Body() createTaskDto: CreateTaskDto) {
+    return this.taskService.create(actor, createTaskDto);
   }
 
   @Get()
@@ -37,19 +34,15 @@ export class TaskController {
 
   @Patch(':id')
   update(
-    @Headers('user-id') actor: string,
+    @CurrentUser() actor: AuthUser,
     @Param('id') id: string,
     @Body() updateTaskDto: UpdateTaskDto,
   ) {
-    return this.taskService.update(
-      requireActorUserId(actor),
-      +id,
-      updateTaskDto,
-    );
+    return this.taskService.update(actor, +id, updateTaskDto);
   }
 
   @Delete(':id')
-  remove(@Headers('user-id') actor: string, @Param('id') id: string) {
-    return this.taskService.remove(requireActorUserId(actor), +id);
+  remove(@CurrentUser() actor: AuthUser, @Param('id') id: string) {
+    return this.taskService.remove(actor, +id);
   }
 }

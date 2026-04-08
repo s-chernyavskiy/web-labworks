@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -11,9 +12,14 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLDirective } from 'graphql/type';
 import { DirectiveLocation } from 'graphql/language';
+import type { Request } from 'express';
 import { MinioModule } from './minio/minio.module';
 import { ImageCacheModule } from './image-cache/image-cache.module';
 import { ImagesModule } from './images/images.module';
+import { AuthGuard } from './auth/auth.guard';
+import { RolesGuard } from './auth/roles.guard';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './users/entities/user.entity';
 
 @Module({
   imports: [
@@ -28,9 +34,11 @@ import { ImagesModule } from './images/images.module';
     MinioModule,
     ImageCacheModule,
     ImagesModule,
+    TypeOrmModule.forFeature([User]),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',
+      context: ({ req }: { req: Request }) => ({ req }),
       transformSchema: (schema) => schema,
       installSubscriptionHandlers: true,
       buildSchemaOptions: {
@@ -44,6 +52,10 @@ import { ImagesModule } from './images/images.module';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    { provide: APP_GUARD, useClass: AuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
+  ],
 })
 export class AppModule {}

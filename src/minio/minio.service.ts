@@ -14,6 +14,8 @@ export class MinioService {
 
   constructor(private readonly configService: ConfigService) {
     const endpoint = this.configService.getOrThrow<string>('MINIO_ENDPOINT');
+    const signingEndpoint =
+      this.configService.get<string>('MINIO_SIGNED_URL_ENDPOINT') ?? endpoint;
     const accessKeyId =
       this.configService.getOrThrow<string>('MINIO_ACCESS_KEY');
     const secretAccessKey =
@@ -24,7 +26,7 @@ export class MinioService {
     this.bucket = this.configService.getOrThrow<string>('MINIO_BUCKET');
     this.client = new S3Client({
       region,
-      endpoint,
+      endpoint: signingEndpoint,
       credentials: { accessKeyId, secretAccessKey },
       forcePathStyle: true,
     });

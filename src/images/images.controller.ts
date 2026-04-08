@@ -1,5 +1,5 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
-import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { ApiBody, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ImageCacheService } from '../image-cache/image-cache.service';
 import { MinioService } from '../minio/minio.service';
 
@@ -52,5 +52,34 @@ export class ImagesController {
       expiresInSeconds: signed.expiresInSeconds,
       cached: false,
     };
+  }
+
+  @Post(':key/upload-url')
+  @ApiParam({ name: 'key', example: 'boards/1/cover.png' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        contentType: { type: 'string', example: 'image/png' },
+        ttl: { type: 'number', example: 300 },
+      },
+      required: [],
+    },
+  })
+  async getUploadUrl(
+    @Param('key') key: string,
+    @Body('contentType') contentType?: string,
+    @Body('ttl') ttlRaw?: number,
+  ): Promise<{ url: string; expiresInSeconds: number }> {
+    const ttlSeconds =
+      typeof ttlRaw === 'number' && Number.isFinite(ttlRaw) && ttlRaw > 0
+        ? ttlRaw
+        : undefined;
+
+    return await this.minioService.getPresignedPutUrl({
+      key,
+      contentType,
+      expiresInSeconds: ttlSeconds,
+    });
   }
 }

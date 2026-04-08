@@ -6,12 +6,12 @@ import {
   Patch,
   Param,
   Delete,
-  Headers,
 } from '@nestjs/common';
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
-import { requireActorUserId } from '../common/actor';
+import { CurrentUser } from '../auth/current-user.decorator';
+import type { AuthUser } from '../auth/auth-user.type';
 
 @Controller('board')
 export class BoardController {
@@ -19,47 +19,43 @@ export class BoardController {
 
   @Post()
   create(
-    @Headers('user-id') actor: string,
+    @CurrentUser() actor: AuthUser,
     @Body() createBoardDto: CreateBoardDto,
   ) {
-    return this.boardService.create(requireActorUserId(actor), createBoardDto);
+    return this.boardService.create(actor, createBoardDto);
   }
 
   @Get()
-  findAll() {
-    return this.boardService.findAll();
+  findAll(@CurrentUser() actor: AuthUser) {
+    return this.boardService.findAll(actor);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.boardService.findOne(+id);
+  findOne(@CurrentUser() actor: AuthUser, @Param('id') id: string) {
+    return this.boardService.findOne(actor, +id);
   }
 
   @Get(':id/columns')
-  findColumns(@Param('id') id: string) {
-    return this.boardService.findColumns(+id);
+  findColumns(@CurrentUser() actor: AuthUser, @Param('id') id: string) {
+    return this.boardService.findColumns(actor, +id);
   }
 
   @Get(':id/tasks')
-  findTasks(@Param('id') id: string) {
-    return this.boardService.findTasks(+id);
+  findTasks(@CurrentUser() actor: AuthUser, @Param('id') id: string) {
+    return this.boardService.findTasks(actor, +id);
   }
 
   @Patch(':id')
   update(
-    @Headers('user-id') actor: string,
+    @CurrentUser() actor: AuthUser,
     @Param('id') id: string,
     @Body() updateBoardDto: UpdateBoardDto,
   ) {
-    return this.boardService.update(
-      requireActorUserId(actor),
-      +id,
-      updateBoardDto,
-    );
+    return this.boardService.update(actor, +id, updateBoardDto);
   }
 
   @Delete(':id')
-  remove(@Headers('user-id') actor: string, @Param('id') id: string) {
-    return this.boardService.remove(requireActorUserId(actor), +id);
+  remove(@CurrentUser() actor: AuthUser, @Param('id') id: string) {
+    return this.boardService.remove(actor, +id);
   }
 }

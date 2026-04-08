@@ -16,6 +16,8 @@ import {
   assertSameBoard,
   assertLimitNotExceeded,
 } from '../domain/kanban/kanban.rules';
+import { AuthUser } from '../auth/auth-user.type';
+import { UserRole } from '../users/entities/user-role.enum';
 
 @Injectable()
 export class TaskService {
@@ -26,10 +28,7 @@ export class TaskService {
     private columnRepository: Repository<BoardColumn>,
   ) {}
 
-  async create(
-    actorUserId: number,
-    createTaskDto: CreateTaskDto,
-  ): Promise<Task> {
+  async create(actor: AuthUser, createTaskDto: CreateTaskDto): Promise<Task> {
     const column = await this.columnRepository.findOne({
       where: { id: createTaskDto.boardColumnId },
       relations: { board: { owner: true } },
@@ -39,9 +38,7 @@ export class TaskService {
         `column with id ${createTaskDto.boardColumnId} not found`,
       );
     }
-    if (column.board?.owner?.id !== actorUserId) {
-      throw new ForbiddenException('Only board owner can create tasks');
-    }
+    this.assertCanEditBoard(actor, column.board?.owner?.id);
 
     const tasksInTargetColumn = await this.taskRepository.count({
       where: { boardColumn: { id: column.id } },
@@ -80,7 +77,7 @@ export class TaskService {
   }
 
   async update(
-    actorUserId: number,
+    actor: AuthUser,
     id: number,
     updateTaskDto: UpdateTaskDto,
   ): Promise<Task> {
@@ -91,9 +88,7 @@ export class TaskService {
     if (task === null) {
       throw new NotFoundException(`task with id ${id} not found`);
     }
-    if (task.boardColumn?.board?.owner?.id !== actorUserId) {
-      throw new ForbiddenException('Only board owner can update tasks');
-    }
+    this.assertCanEditBoard(actor, task.boardColumn?.board?.owner?.id);
 
     const movingToColumnId = updateTaskDto.boardColumnId;
     if (movingToColumnId != null) {
@@ -131,7 +126,7 @@ export class TaskService {
         );
       }
 
-      const actorIsOwner = targetColumn.board?.owner?.id === actorUserId;
+      const actorIsOwner = targetColumn.board?.owner?.id === actor.id;
       assertDoneExitAllowed({
         fromColumn: { title: task.boardColumn.title },
         actorIsOwner,
@@ -158,7 +153,7 @@ export class TaskService {
     return task;
   }
 
-  async remove(actorUserId: number, id: number): Promise<void> {
+  async remove(actor: AuthUser, id: number): Promise<void> {
     const task = await this.taskRepository.findOne({
       where: { id },
       relations: { boardColumn: { board: { owner: true } } },
@@ -166,10 +161,15 @@ export class TaskService {
     if (task === null) {
       throw new NotFoundException(`task with id ${id} not found`);
     }
-    if (task.boardColumn?.board?.owner?.id !== actorUserId) {
-      throw new ForbiddenException('Only board owner can delete tasks');
-    }
+    this.assertCanEditBoard(actor, task.boardColumn?.board?.owner?.id);
 
     await this.taskRepository.delete(id);
+  }
+
+  private assertCanEditBoard(actor: AuthUser, ownerId?: number): void {
+    if (actor.role === UserRole.ADMIN || ownerId === actor.id) {
+      return;
+    }
+    throw new ForbiddenException('Only board owner can modify tasks');
   }
 }

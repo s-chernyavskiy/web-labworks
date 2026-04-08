@@ -11,6 +11,8 @@ import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { BoardColumn } from '../board-column/entities/board-column.entity';
 import { Task } from '../task/entities/task.entity';
+import { AuthUser } from '../auth/auth-user.type';
+import { UserRole } from '../users/entities/user-role.enum';
 
 @Injectable()
 export class BoardService {
@@ -24,14 +26,14 @@ export class BoardService {
   ) {}
 
   async create(
-    actorUserId: number,
+    actor: AuthUser,
     createBoardDto: CreateBoardDto,
   ): Promise<Board> {
     const owner = await this.userRepository.findOne({
-      where: { id: actorUserId },
+      where: { id: actor.id },
     });
     if (owner === null) {
-      throw new NotFoundException(`user with id ${actorUserId} not found`);
+      throw new NotFoundException(`user with id ${actor.id} not found`);
     }
 
     const board = new Board();
@@ -43,21 +45,34 @@ export class BoardService {
     return await this.boardRepository.save(board);
   }
 
-  async findAll(): Promise<Board[]> {
-    return await this.boardRepository.find();
-  }
-
-  async findOne(id: number): Promise<Board | null> {
-    return await this.boardRepository.findOne({ where: { id } });
-  }
-
-  async findColumns(boardId: number): Promise<BoardColumn[]> {
-    const board = await this.boardRepository.findOne({
-      where: { id: boardId },
-    });
-    if (board === null) {
-      throw new NotFoundException(`could not find board: ${boardId}`);
+  async findAll(actor: AuthUser): Promise<Board[]> {
+    if (actor.role === UserRole.ADMIN) {
+      return await this.boardRepository.find({
+        relations: { owner: true },
+      });
     }
+
+    return await this.boardRepository.find({
+      where: { owner: { id: actor.id } },
+      relations: { owner: true },
+    });
+  }
+
+  async findOne(actor: AuthUser, id: number): Promise<Board | null> {
+    const board = await this.boardRepository.findOne({
+      where: { id },
+      relations: { owner: true },
+    });
+    if (!board) {
+      return null;
+    }
+
+    this.assertBoardReadable(actor, board);
+    return board;
+  }
+
+  async findColumns(actor: AuthUser, boardId: number): Promise<BoardColumn[]> {
+    await this.assertBoardReadableById(actor, boardId);
 
     return await this.boardColumnRepository.find({
       where: { board: { id: boardId } },
@@ -65,13 +80,8 @@ export class BoardService {
     });
   }
 
-  async findTasks(boardId: number): Promise<Task[]> {
-    const board = await this.boardRepository.findOne({
-      where: { id: boardId },
-    });
-    if (board === null) {
-      throw new NotFoundException(`could not find board: ${boardId}`);
-    }
+  async findTasks(actor: AuthUser, boardId: number): Promise<Task[]> {
+    await this.assertBoardReadableById(actor, boardId);
 
     return await this.taskRepository.find({
       where: { boardColumn: { board: { id: boardId } } },
@@ -81,7 +91,7 @@ export class BoardService {
   }
 
   async update(
-    actorUserId: number,
+    actor: AuthUser,
     id: number,
     updateBoardDto: UpdateBoardDto,
   ): Promise<Board> {
@@ -92,7 +102,7 @@ export class BoardService {
     if (board === null) {
       throw new NotFoundException(`could not find board: ${id}`);
     }
-    if (board.owner?.id !== actorUserId) {
+    if (actor.role !== UserRole.ADMIN && board.owner?.id !== actor.id) {
       throw new ForbiddenException('Only board owner can update board');
     }
 
@@ -100,7 +110,7 @@ export class BoardService {
     return board;
   }
 
-  async remove(actorUserId: number, id: number): Promise<void> {
+  async remove(actor: AuthUser, id: number): Promise<void> {
     const board = await this.boardRepository.findOne({
       where: { id },
       relations: { owner: true },
@@ -108,10 +118,31 @@ export class BoardService {
     if (board === null) {
       throw new NotFoundException(`could not find board: ${id}`);
     }
-    if (board.owner?.id !== actorUserId) {
+    if (actor.role !== UserRole.ADMIN && board.owner?.id !== actor.id) {
       throw new ForbiddenException('Only board owner can delete board');
     }
 
     await this.boardRepository.delete(id);
+  }
+
+  private async assertBoardReadableById(
+    actor: AuthUser,
+    boardId: number,
+  ): Promise<void> {
+    const board = await this.boardRepository.findOne({
+      where: { id: boardId },
+      relations: { owner: true },
+    });
+    if (!board) {
+      throw new NotFoundException(`could not find board: ${boardId}`);
+    }
+    this.assertBoardReadable(actor, board);
+  }
+
+  private assertBoardReadable(actor: AuthUser, board: Board): void {
+    if (actor.role === UserRole.ADMIN || board.owner?.id === actor.id) {
+      return;
+    }
+    throw new ForbiddenException('No access to this board');
   }
 }

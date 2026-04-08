@@ -9,6 +9,8 @@ import { BoardColumn } from './entities/board-column.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Board } from '../board/entities/board.entity';
+import { AuthUser } from '../auth/auth-user.type';
+import { UserRole } from '../users/entities/user-role.enum';
 
 @Injectable()
 export class BoardColumnService {
@@ -20,7 +22,7 @@ export class BoardColumnService {
   ) {}
 
   async create(
-    actorUserId: number,
+    actor: AuthUser,
     createBoardColumnDto: CreateBoardColumnDto,
   ): Promise<BoardColumn> {
     const board = await this.boardRepository.findOne({
@@ -32,9 +34,7 @@ export class BoardColumnService {
         `board with id ${createBoardColumnDto.boardId} not found`,
       );
     }
-    if (board.owner?.id !== actorUserId) {
-      throw new ForbiddenException('Only board owner can create columns');
-    }
+    this.assertCanEditBoard(actor, board.owner?.id);
 
     const column = new BoardColumn();
     column.title = createBoardColumnDto.title;
@@ -69,7 +69,7 @@ export class BoardColumnService {
   }
 
   async update(
-    actorUserId: number,
+    actor: AuthUser,
     id: number,
     updateColumnDto: UpdateBoardColumnDto,
   ): Promise<BoardColumn> {
@@ -80,9 +80,7 @@ export class BoardColumnService {
     if (column === null) {
       throw new NotFoundException(`column with id ${id} not found`);
     }
-    if (column.board?.owner?.id !== actorUserId) {
-      throw new ForbiddenException('Only board owner can update columns');
-    }
+    this.assertCanEditBoard(actor, column.board?.owner?.id);
 
     if (updateColumnDto.allowedToIds) {
       if (updateColumnDto.allowedToIds.length === 0) {
@@ -112,7 +110,7 @@ export class BoardColumnService {
     return await this.columnRepository.save(column);
   }
 
-  async remove(actorUserId: number, id: number): Promise<void> {
+  async remove(actor: AuthUser, id: number): Promise<void> {
     const column = await this.columnRepository.findOne({
       where: { id },
       relations: { board: { owner: true } },
@@ -120,10 +118,15 @@ export class BoardColumnService {
     if (column === null) {
       throw new NotFoundException(`column with id ${id} not found`);
     }
-    if (column.board?.owner?.id !== actorUserId) {
-      throw new ForbiddenException('Only board owner can delete columns');
-    }
+    this.assertCanEditBoard(actor, column.board?.owner?.id);
 
     await this.columnRepository.delete(id);
+  }
+
+  private assertCanEditBoard(actor: AuthUser, ownerId?: number): void {
+    if (actor.role === UserRole.ADMIN || ownerId === actor.id) {
+      return;
+    }
+    throw new ForbiddenException('Only board owner can modify columns');
   }
 }

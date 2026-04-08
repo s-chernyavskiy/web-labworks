@@ -1,0 +1,110 @@
+.archive-container {
+    padding: 24px;
+    background: #fff;
+    border-radius: 8px;
+    min-height: calc(100vh - 200px);
+}
+
+.archive-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f0f0f0;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.archive-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.archive-title h2 {
+    margin: 0;
+    color: #52c41a;
+    font-size: 24px;
+}
+
+.archive-search {
+    max-width: 300px;
+}
+
+.archive-list {
+    max-width: 100%;
+}
+
+.archive-card {
+    height: 100%;
+    transition: all 0.3s ease;
+    border: 1px solid #e8e8e8;
+    background: linear-gradient(135deg, #f6ffed 0%, #ffffff 100%);
+}
+
+.archive-card:hover {
+    border-color: #52c41a;
+    box-shadow: 0 4px 12px rgba(82, 196, 26, 0.15);
+}
+
+.archive-card-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #52c41a;
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+.archive-card-header {
+    margin-bottom: 8px;
+}
+
+.archive-card-header .task-title {
+    font-weight: 600;
+    font-size: 15px;
+    color: #262626;
+}
+
+.archive-card .task-description {
+    color: #595959;
+    font-size: 12px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.archive-card-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.archive-card-footer .assignee-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #8c8c8c;
+}
+
+.archive-card .task-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+@media (max-width: 768px) {
+    .archive-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .archive-search {
+        max-width: 100%;
+        width: 100%;
+    }
+}
+

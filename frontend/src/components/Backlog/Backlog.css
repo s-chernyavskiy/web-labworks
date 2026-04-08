@@ -1,0 +1,126 @@
+.backlog-container {
+    padding: 24px;
+    background: #fff;
+    border-radius: 8px;
+    min-height: calc(100vh - 200px);
+}
+
+.backlog-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.backlog-header h2 {
+    margin: 0;
+    color: #1890ff;
+    font-size: 24px;
+}
+
+.backlog-list {
+    max-width: 100%;
+}
+
+.backlog-item {
+    padding: 0 !important;
+    border: none !important;
+    margin-bottom: 12px;
+}
+
+.backlog-card {
+    width: 100%;
+    transition: all 0.3s ease;
+    border: 1px solid #e8e8e8;
+}
+
+.backlog-card:hover {
+    border-color: #1890ff;
+    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.15);
+}
+
+.backlog-card-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.backlog-card-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.backlog-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.backlog-card-header .task-title {
+    font-weight: 600;
+    font-size: 16px;
+    color: #262626;
+}
+
+.backlog-card .task-description {
+    color: #595959;
+    font-size: 13px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.backlog-card-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.backlog-card-footer .assignee-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #8c8c8c;
+}
+
+.backlog-card-footer .task-tags {
+    display: flex;
+    gap: 4px;
+}
+
+.backlog-card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+}
+
+.backlog-card-actions .ant-btn-primary {
+    background: #52c41a;
+    border-color: #52c41a;
+}
+
+.backlog-card-actions .ant-btn-primary:hover {
+    background: #73d13d;
+    border-color: #73d13d;
+}
+
+@media (max-width: 768px) {
+    .backlog-card-content {
+        flex-direction: column;
+    }
+
+    .backlog-card-actions {
+        flex-direction: row;
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+

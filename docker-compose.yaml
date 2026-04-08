@@ -62,6 +62,19 @@ services:
     networks:
       - chernyavskiy_network
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_API_BASE_URL: /api
+    ports:
+      - "3001:80"
+    depends_on:
+      - app
+    networks:
+      - chernyavskiy_network
+
 volumes:
   minio_data:
 

@@ -11,6 +11,9 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLDirective } from 'graphql/type';
 import { DirectiveLocation } from 'graphql/language';
+import { MinioModule } from './minio/minio.module';
+import { ImageCacheModule } from './image-cache/image-cache.module';
+import { ImagesModule } from './images/images.module';
 
 @Module({
   imports: [
@@ -22,6 +25,9 @@ import { DirectiveLocation } from 'graphql/language';
     BoardModule,
     BoardColumnModule,
     TaskModule,
+    MinioModule,
+    ImageCacheModule,
+    ImagesModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',

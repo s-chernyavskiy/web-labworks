@@ -1,14 +1,25 @@
-import { Args, ID, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { BoardColumn } from './entities/board-column.entity';
 import { BoardColumnService } from './board-column.service';
 import { CreateBoardColumnDto } from './dto/create-board-column.dto';
 import { UpdateBoardColumnDto } from './dto/update-board-column.dto';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { AuthUser } from '../auth/auth-user.type';
+import { NotFoundException } from '@nestjs/common';
 
 @Resolver(() => BoardColumn)
 export class BoardColumnResolver {
   constructor(private readonly boardColumnService: BoardColumnService) {}
+
+  @Query(() => BoardColumn)
+  async boardColumn(@Args('id') id: number): Promise<BoardColumn> {
+    const column = await this.boardColumnService.findOne(id);
+    if (!column) {
+      throw new NotFoundException(`BoardColumn with id ${id} not found`);
+    }
+
+    return column;
+  }
 
   @Mutation(() => BoardColumn)
   async addBoardColumn(

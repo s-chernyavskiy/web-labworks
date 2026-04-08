@@ -9,6 +9,7 @@ type User {
   id: ID!
   email: String!
   name: String!
+  role: String!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -18,15 +19,76 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type Board {
+  id: ID!
+  title: String!
+  description: String!
+  owner: User!
+  createdAt: DateTime!
+}
+
+type BoardColumn {
+  id: ID!
+  title: String!
+  limit: Float
+  allowedTo: [BoardColumn!]!
+  board: Board!
+}
+
+type Task {
+  id: ID!
+  title: String!
+  description: String!
+  boardColumn: BoardColumn!
+  order: Float!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 type Query {
   users(id: Float!): User!
+  boards: [Board!]!
+  board(id: Float!): Board!
+  boardColumns(boardId: Float!): [BoardColumn!]!
+  boardTasks(boardId: Float!): [Task!]!
+  boardColumn(id: Float!): BoardColumn!
 }
 
 type Mutation {
   addUser(createUser: CreateUserDto!): User!
+  addBoardColumn(createBoardColumn: CreateBoardColumnDto!): BoardColumn!
+  updateBoardColumn(id: ID!, updateBoardColumn: UpdateBoardColumnDto!): BoardColumn!
+  addTask(createTask: CreateTaskDto!): Task!
+  updateTask(id: ID!, updateTask: UpdateTaskDto!): Task!
 }
 
 input CreateUserDto {
   email: String!
   name: String!
+  role: String
+}
+
+input CreateBoardColumnDto {
+  title: String!
+  boardId: Float!
+  limit: Float
+  allowedToIds: [Float!]
+}
+
+input UpdateBoardColumnDto {
+  title: String
+  limit: Float
+  allowedToIds: [Float!]
+}
+
+input CreateTaskDto {
+  title: String!
+  description: String!
+  boardColumnId: Float!
+}
+
+input UpdateTaskDto {
+  title: String
+  description: String
+  boardColumnId: Float
 }

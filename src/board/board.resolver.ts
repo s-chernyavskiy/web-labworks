@@ -5,6 +5,7 @@ import { BoardService } from './board.service';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { AuthUser } from '../auth/auth-user.type';
 import { Board } from './entities/board.entity';
+import { NotFoundException } from '@nestjs/common';
 
 @Resolver()
 export class BoardResolver {
@@ -13,6 +14,19 @@ export class BoardResolver {
   @Query(() => [Board])
   async boards(@CurrentUser() actor: AuthUser): Promise<Board[]> {
     return await this.boardService.findAll(actor);
+  }
+
+  @Query(() => Board)
+  async board(
+    @CurrentUser() actor: AuthUser,
+    @Args('id') id: number,
+  ): Promise<Board> {
+    const board = await this.boardService.findOne(actor, id);
+    if (!board) {
+      throw new NotFoundException(`Board with id ${id} not found`);
+    }
+
+    return board;
   }
 
   @Query(() => [BoardColumn])
